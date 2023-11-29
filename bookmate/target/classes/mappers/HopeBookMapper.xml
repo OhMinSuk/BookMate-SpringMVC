@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="bbs.mapper.hopeBookMapper">
+	
+	<select id="createHopeBook" resultType="HopeBookVO">
+		insert into hope_book(user_no, hope_name, hope_ISBN)
+		values(#{userNo}, #{hopeName}, #{hopeISBN})
+	</select>
+	
+	<select id="getHopeBookList" resultType="HopeBookVO">
+		select * from hope_book;
+	</select>
+	
+</mapper>

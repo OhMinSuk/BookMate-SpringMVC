@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="bbs.mapper.boardMapper">
+
+	<select id="getList" resultType="boardVO">
+		select * from board join user on board.user_no = user.user_no order by board_no desc;
+	</select>
+	
+	<select id="readBoard" resultType="boardVO">
+		select * 
+		from board 
+		join user on board.user_no = user.user_no 
+		where board_no = #{boardNo}
+	</select>
+	
+	<insert id="writeBoard">
+		insert into board(board_title, board_content, user_no)
+		values(#{boardTitle}, #{boardContent}, #{userNo} )
+	</insert>
+	
+	<delete id="deleteBoard">
+		delete from board
+		where board_no=#{boardNo}
+	</delete>
+	
+	<select id="getBoardCommentCount" resultType="java.lang.Integer">
+		select count(comment_no)
+		from comment
+		where board_no = #{boardNo}
+	</select>
+	
+		<select id="getCommentList" resultType="commentVO">
+		select *
+		from comment
+		join user on comment.user_no = user.user_no
+		where comment.board_no = #{boardNo}
+	</select>
+	
+	<insert id="addComment">
+		insert comment(board_no, user_no, comment_content, comment_date)
+		values(#{boardNo}, #{userNo}, #{commentContent}, now())
+	</insert>
+	
+</mapper>

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="bbs.mapper.bookMapper">
+	
+	<select id="getBookList" resultType="BookVO">
+		select book_no, book_name, book_author, book_genre, book_publisher, book_ISBN 
+		from book 
+		where book_genre like CONCAT('%', #{bookGenre}, '%')
+	</select>
+	
+	<select id="getNewBook" resultType="BookVO">
+		SELECT * FROM book ORDER BY book_no DESC LIMIT 10
+	</select>
+	
+	<select id="getBestBook" resultType="BookVO">
+		SELECT *, COUNT(*) FROM rent NATURAL JOIN book GROUP BY book_no ORDER BY 14 desc LIMIT 5
+	</select>
+	
+	<select id= "readBook" resultType="BookVO">
+		select * from book where book_no=#{bookNo}
+	</select>
+	
+	<insert id= "addBook">
+		insert into book(book_name, book_genre, book_publisher, book_author, book_ISBN, book_image)
+		values(#{bookName}, #{bookGenre}, #{bookPublisher}, #{bookAuthor}, #{bookISBN}, #{bookImage})
+	</insert>
+	
+	<select id="getLastBookNo" resultType="int">
+		select max(book_no) from book
+	</select>
+	
+	<select id="getRentChartData" resultType="hashMap">
+		SELECT COUNT(*) as rent_count, book_name FROM book NATURAL JOIN rent GROUP BY book_name ORDER BY 1 desc LIMIT 5;
+	</select>
+	
+	<select id="getGenreChartData" resultType="hashMap">
+		SELECT COUNT(*) as genre_count, book_genre FROM book GROUP BY book_genre
+	</select>
+	
+	<select id="getGenderChartData" resultType="hashMap">
+		WITH genre_list AS (
+		    SELECT 'IT' AS genre
+		    UNION ALL
+		    SELECT '경제경영'
+		    UNION ALL
+		    SELECT '소설'
+		    UNION ALL
+		    SELECT '여행'
+		    UNION ALL
+		    SELECT '외국어'
+		    UNION ALL
+		    SELECT '자기계발'
+		)
+		
+		SELECT G.genre AS book_genre,
+		       COALESCE(SUM(CASE WHEN M.user_gender = '남자' THEN 1 ELSE 0 END), 0) AS male,
+		       COALESCE(SUM(CASE WHEN M.user_gender = '여자' THEN 1 ELSE 0 END), 0) AS female
+		FROM genre_list G
+		LEFT JOIN book B ON G.genre = B.book_genre
+		LEFT JOIN rent R ON B.book_no = R.book_no
+		LEFT JOIN user M ON R.user_no = M.user_no
+		GROUP BY G.genre
+		ORDER BY FIELD(G.genre, 'IT', '경제경영', '소설', '여행', '외국어', '자기계발');
+	</select>
+	
+	<select id="getDateChartData" resultType="hashMap">
+		SELECT COUNT(*) AS rent_count , user_name FROM user NATURAL JOIN rent where rent_start_date BETWEEN DATE_FORMAT(NOW(),'%Y-%m-01') AND now() GROUP BY user_name order BY 1 desc LIMIT 5;
+	</select>
+	
+</mapper>

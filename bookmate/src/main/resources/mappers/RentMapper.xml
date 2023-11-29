@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="bbs.mapper.rentMapper">
+	
+	<select id="isRentBook" resultType="int">
+		SELECT count(*)
+		FROM rent
+		WHERE book_no=#{bookNo} AND 
+		user_no=#{userNo} AND 
+		rent_status=1 AND 
+		(NOW() BETWEEN rent_start_date AND rent_end_date)
+	</select>
+	
+	<insert id="rentBook">
+		insert into rent(book_no, user_no, rent_start_date, rent_end_date) values(#{bookNo}, #{userNo}, #{rentStartDate}, #{rentEndDate})
+	</insert>
+
+	<select id="getRentList" resultType="rentVO">
+		select * from rent natural join user natural join book where rent.user_no = #{userNo}
+	</select>
+	
+	<update id="returnBook">
+		update rent set 
+		rent_status=0, rent_end_date = now()
+		where rent_no = #{rentNo}
+	</update>
+	
+	<update id="extendBook">
+		update rent set 
+		rent_extend=0, rent_end_date = rent_end_date + 7
+		where rent_no = #{rentNo}
+	</update>
+	
+	<select id="getAllList" resultType="rentVO">
+		select * from rent natural join user natural join book where rent.user_no = user.user_no order by rent_no;
+	</select>
+</mapper>
